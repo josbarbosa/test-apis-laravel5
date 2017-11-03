@@ -72,7 +72,7 @@ class LessonsController extends Controller
     public function destroy(Lesson $lesson)
     {
         if ($lesson->delete()) {
-            return $this->respondeDeleteSuccess();
+            return $this->respondDeleteSuccess();
         } else {
             return $this->respondInternalError();
         }

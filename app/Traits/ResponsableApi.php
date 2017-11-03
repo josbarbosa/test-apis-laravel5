@@ -90,7 +90,7 @@ trait ResponsableApi
     /**
      * @return mixed
      */
-    public function respondeDeleteSuccess()
+    public function respondDeleteSuccess()
     {
         return $this->setMessage('Resource deleted successfully')
             ->setStatusCode(StatusCode::HTTP_OK)
@@ -100,7 +100,7 @@ trait ResponsableApi
     /**
      * @return mixed
      */
-    public function respondeUpdateSuccess()
+    public function respondUpdateSuccess()
     {
         return $this->setMessage('Resource updated successfully')
             ->setStatusCode(StatusCode::HTTP_OK)
