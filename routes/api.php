@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,6 +18,8 @@ use Illuminate\Http\Request;
 Route::group(['prefix' => 'v1'], function () {
 
     Route::get('lessons/{lesson}/tags', 'LessonsController@tags');
+
+    Route::get('lessons/tags-group', 'LessonsController@tagsGroup');
 
     Route::resource('lessons', 'LessonsController');
 

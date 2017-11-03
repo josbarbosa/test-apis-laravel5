@@ -7,9 +7,9 @@
  * @return int
  * @internal param string $text
  */
-function getItemsPerPage(string $index): int
+function getItemsPerPage(string $index = null): int
 {
-    return config("paginator.$index.perpage");
+    return config('paginator.' . (($index) ? $index : 'default') . '.perpage');
 }
 
 /**

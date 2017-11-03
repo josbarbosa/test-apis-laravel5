@@ -1,9 +1,9 @@
 <?php namespace App\Http\Controllers;
 
-use App\Http\Resources\TagCollection;
+use App\Http\Resources\ResourceApiCollection;
+use App\Http\Resources\TagResource;
 use App\Tag;
 use App\Traits\ResponsableApi;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Class TagsController
@@ -14,21 +14,26 @@ class TagsController extends Controller
     use ResponsableApi;
 
     /**
-     * @return JsonResponse
+     * @var string
      */
-    public function index(): JsonResponse
+    protected $tagResourceClass = TagResource::class;
+
+    /**
+     * @return ResourceApiCollection
+     */
+    public function index(): ResourceApiCollection
     {
-        return (new TagCollection(
-            Tag::paginate(getItemsPerPage('tags'))
-        ))->response();
+        return (new ResourceApiCollection(
+            Tag::paginate(getItemsPerPage('tags')), $this->tagResourceClass
+        ));
     }
 
     /**
      * @param Tag $tag
-     * @return JsonResponse
+     * @return ResourceApiCollection
      */
-    public function show(Tag $tag): JsonResponse
+    public function show(Tag $tag): ResourceApiCollection
     {
-        return (new TagCollection($tag->get()))->response();
+        return (new ResourceApiCollection($tag->get(), $this->tagResourceClass));
     }
 }

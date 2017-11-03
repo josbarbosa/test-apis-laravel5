@@ -15,6 +15,44 @@ class ResourceApiCollection extends ResourceCollection
     use MessagableApi;
 
     /**
+     * @var string
+     */
+    protected $resourceClass;
+
+    /**
+     * ResourceApiCollection constructor.
+     * @param $resource
+     * @param $resourceClass
+     */
+    public function __construct($resource, $resourceClass = null)
+    {
+        parent::__construct($resource);
+
+        $this->resourceClass = $resourceClass;
+    }
+
+    /**
+     * Return a Resource Class Name
+     *
+     * @return string
+     */
+    public function getResourceClass(): string
+    {
+        return $this->resourceClass;
+    }
+
+    /**
+     * @param $resourceClass
+     * @return ResourceApiCollection
+     */
+    public function setResourceClass($resourceClass): self
+    {
+        $this->resourceClass = $resourceClass;
+
+        return $this;
+    }
+
+    /**
      * Parent class withResponse override
      *
      * @param Request $request
@@ -31,7 +69,7 @@ class ResourceApiCollection extends ResourceCollection
      *
      * @return $this
      */
-    public function withCreatedCodeStatus()
+    public function withCreateCodeStatus()
     {
         $this->setStatusCode(StatusCode::HTTP_CREATED);
 
@@ -44,7 +82,7 @@ class ResourceApiCollection extends ResourceCollection
      *
      * @return $this
      */
-    public function withUpdatedCodeStatus()
+    public function withUpdateCodeStatus()
     {
         $this->setStatusCode(StatusCode::HTTP_OK);
 
@@ -52,18 +90,17 @@ class ResourceApiCollection extends ResourceCollection
     }
 
     /**
-     * @param $resource
+     * @param Request $request
      * @return array
      */
-    protected function getResourceCollection($resource): array
+    public function toArray($request)
     {
-        return array_merge(
-            $this->buildMessagableResponse(),
-            [
-                $resource::$wrap => $this->collectResource(
-                    $resource::collection($this->collection)
+        /** @var string $wrap */
+        return $this->merge($this->buildMessagableResponse(), 2, [
+            $this->resourceClass::$wrap =>
+                $this->collectResource(
+                    $this->resourceClass::collection($this->collection)
                 ),
-            ]
-        );
+        ]);
     }
 }

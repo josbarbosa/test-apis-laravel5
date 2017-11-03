@@ -20,6 +20,8 @@ class LessonsTest extends TestCase
         /** Given some lessons */
         create(Lesson::class, 10);
 
+        create(Tag::class, 10);
+
         /** and a number of lessons to paginate */
         $itemsPerPage = 2;
         setItemsPerPage('lessons', $itemsPerPage);
@@ -95,7 +97,7 @@ class LessonsTest extends TestCase
 
         /** Test the Lesson json fragment */
         $response->assertStatus(200)
-            ->assertJsonFragment($this->getLessonFragment($lastLesson));
+            ->assertJsonFragment($this->lessonFragment($lastLesson));
     }
 
     /** @test */
@@ -107,7 +109,7 @@ class LessonsTest extends TestCase
         $response = $this->getJson('api/v1/lessons/' . $lesson->id)
             ->assertStatus(200);
 
-        $response->assertJsonFragment($this->getLessonFragment($lesson));
+        $response->assertJsonFragment($this->lessonFragment($lesson));
     }
 
     /** @test */
@@ -205,13 +207,16 @@ class LessonsTest extends TestCase
         $lesson = create(Lesson::class, 1);
 
         $newTitle = 'New Title';
+        $newBody = 'New Body';
         $this->patchJson('api/v1/lessons/' . $lesson->id, [
             'title' => $newTitle,
+            'body'  => $newBody,
         ])
             ->assertStatus(200)
             ->assertJsonFragment([
-                'title' => $newTitle,
-                'body'  => $lesson->body,
+                'title'  => $newTitle,
+                'body'   => $newBody,
+                'active' => (bool)$lesson->active,
             ])
             ->assertJsonStructure([
                 'message',
@@ -246,6 +251,33 @@ class LessonsTest extends TestCase
         $this->deleteJson('api/v1/lessons/1', ['title' => 'New Title'])->assertStatus(404);
     }
 
+    /** @test */
+    function user_can_fetch_lessons_with_group_concat_tag_names(): void
+    {
+        $lesson = create(Lesson::class, 1);
+        $lesson->tags()->attach(create(Tag::class, 2));
+
+        $response = $this->getJson('api/v1/lessons/tags-group')
+            ->assertStatus(200);
+
+        $response->assertJsonFragment($this->tagsGroupFragment($lesson));
+    }
+
+    /**
+     * @param Lesson $lesson
+     * @return array
+     */
+    function tagsGroupFragment(Lesson $lesson): array
+    {
+        return [
+            'id'    => $lesson->id,
+            'title' => $lesson->title,
+            'names' => $lesson->tags->reduce(function ($name, $tag) {
+                return $name . (($name) ? ',' : '') . $tag->name;
+            }),
+        ];
+    }
+
     /**
      * @param array $attributes
      * @param array $response
@@ -261,7 +293,7 @@ class LessonsTest extends TestCase
      * @param Lesson $lesson
      * @return array
      */
-    private function getLessonFragment(Lesson $lesson): array
+    private function lessonFragment(Lesson $lesson): array
     {
         return [
             'id'         => $lesson->id,
@@ -280,14 +312,8 @@ class LessonsTest extends TestCase
      */
     private function extractTagsToArray(Lesson $lesson): array
     {
-        $tagsArray = [];
-        $lesson->tags->each(function ($tag) use (&$tagsArray) {
-            array_push($tagsArray, [
-                'id'   => $tag->id,
-                'name' => $tag->name,
-            ]);
-        });
-
-        return $tagsArray;
+        return $lesson->tags->map(function ($tag) {
+            return $this->tagFragment($tag);
+        })->toArray();
     }
 }

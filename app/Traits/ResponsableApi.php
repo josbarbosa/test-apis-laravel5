@@ -1,5 +1,6 @@
 <?php namespace App\Traits;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Response as StatusCode;
 
@@ -10,45 +11,47 @@ use Illuminate\Http\Response as StatusCode;
 trait ResponsableApi
 {
     use MessagableApi;
+
+
     /**
-     * @param $data
+     * @param array $data
      * @param array $headers
-     * @return mixed
+     * @return JsonResponse
      */
-    public function respond($data, $headers = [])
+    public function respond(array $data, array $headers = []): JsonResponse
     {
         return Response::json($data, $this->getStatusCode(), $headers);
     }
 
     /**
      * @param $errors
-     * @return mixed
+     * @return JsonResponse
      */
-    public function respondWithErrors($errors)
+    public function respondWithErrors($errors): JsonResponse
     {
         return $this->respond(array_merge($this->buildMessagableResponse(), ['errors' => $errors]));
     }
 
     /**
-     * @return mixed
+     * @return JsonResponse
      */
-    public function respondWithSuccess()
+    public function respondWithSuccess(): JsonResponse
     {
         return $this->respond($this->buildMessagableResponse());
     }
 
     /**
-     * @return mixed
+     * @return JsonResponse
      */
-    public function respondWithErrorMessage()
+    public function respondWithErrorMessage(): JsonResponse
     {
         return $this->respond($this->buildMessagableResponse());
     }
 
     /**
-     * @return mixed
+     * @return JsonResponse
      */
-    public function respondNotFound()
+    public function respondNotFound(): JsonResponse
     {
         return $this->setMessage('Not found')
             ->setStatusCode(StatusCode::HTTP_NOT_FOUND)
@@ -56,9 +59,9 @@ trait ResponsableApi
     }
 
     /**
-     * @return mixed
+     * @return JsonResponse
      */
-    public function respondUnauthorized()
+    public function respondUnauthorized(): JsonResponse
     {
         return $this->setMessage('Invalid credentials')
             ->setStatusCode(StatusCode::HTTP_UNAUTHORIZED)
@@ -67,9 +70,9 @@ trait ResponsableApi
 
 
     /**
-     * @return mixed
+     * @return JsonResponse
      */
-    public function respondInternalError()
+    public function respondInternalError(): JsonResponse
     {
         return $this->setMessage('Internal Server Error')
             ->setStatusCode(StatusCode::HTTP_INTERNAL_SERVER_ERROR)
@@ -77,10 +80,10 @@ trait ResponsableApi
     }
 
     /**
-     * @param null $errors
-     * @return mixed
+     * @param $errors
+     * @return JsonResponse
      */
-    public function respondFailedValidation($errors = null)
+    public function respondFailedValidation($errors = null): JsonResponse
     {
         return $this->setMessage('Failed Validation')
             ->setStatusCode(StatusCode::HTTP_UNPROCESSABLE_ENTITY)
@@ -88,9 +91,9 @@ trait ResponsableApi
     }
 
     /**
-     * @return mixed
+     * @return JsonResponse
      */
-    public function respondDeleteSuccess()
+    public function respondDeleteSuccess(): JsonResponse
     {
         return $this->setMessage('Resource deleted successfully')
             ->setStatusCode(StatusCode::HTTP_OK)
@@ -98,12 +101,12 @@ trait ResponsableApi
     }
 
     /**
-     * @return mixed
+     * @return JsonResponse
      */
-    public function respondUpdateSuccess()
+    public function respondBadRequest(): JsonResponse
     {
-        return $this->setMessage('Resource updated successfully')
-            ->setStatusCode(StatusCode::HTTP_OK)
-            ->respondWithSuccess();
+        return $this->setMessage('Resource malformed')
+            ->setStatusCode(StatusCode::HTTP_BAD_REQUEST)
+            ->respondWithErrorMessage();
     }
 }

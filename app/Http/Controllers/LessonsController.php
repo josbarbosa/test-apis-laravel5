@@ -1,10 +1,14 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests\LessonRequest;
-use App\Http\Resources\LessonCollection;
-use App\Http\Resources\TagCollection;
+use App\Http\Resources\LessonResource;
+use App\Http\Resources\TagGroupResource;
+use App\Http\Resources\ResourceApiCollection;
+use App\Http\Resources\TagResource;
 use App\Lesson;
+use App\Repositories\LessonRepository;
 use App\Traits\ResponsableApi;
+use Illuminate\Http\JsonResponse;
 
 /**
  * Class LessonsController
@@ -13,6 +17,11 @@ use App\Traits\ResponsableApi;
 class LessonsController extends Controller
 {
     use ResponsableApi;
+
+    /**
+     * @var string
+     */
+    protected $lessonResourceClass = LessonResource::class;
 
     /**
      * LessonsController constructor.
@@ -24,9 +33,9 @@ class LessonsController extends Controller
 
 
     /**
-     * @return LessonCollection
+     * @return ResourceApiCollection
      */
-    public function index(): LessonCollection
+    public function index(): ResourceApiCollection
     {
         /** 1. All is bad */
         /** 2. No way to attach meta data */
@@ -37,39 +46,38 @@ class LessonsController extends Controller
 
         /** https://www.rfc-editor.org/rfc/rfc2616.txt */
 
-
-        return (new LessonCollection(
-            Lesson::paginate(getItemsPerPage('lessons'))
+        return (new ResourceApiCollection(
+            Lesson::paginate(getItemsPerPage('lessons')), $this->lessonResourceClass
         ));
     }
 
     /**
      * @param Lesson $lesson
-     * @return LessonCollection
+     * @return ResourceApiCollection
      */
-    public function show(Lesson $lesson): LessonCollection
+    public function show(Lesson $lesson): ResourceApiCollection
     {
-        return (new LessonCollection($lesson->get()));
+        return (new ResourceApiCollection($lesson->get(), $this->lessonResourceClass));
     }
 
     /**
      * @param LessonRequest $request
-     * @return LessonCollection
+     * @return ResourceApiCollection
      */
-    public function store(LessonRequest $request): LessonCollection
+    public function store(LessonRequest $request): ResourceApiCollection
     {
         $lesson = Lesson::create($request->all());
 
-        return (new LessonCollection($lesson->get()))
-            ->withCreatedCodeStatus()
+        return (new ResourceApiCollection($lesson->get(), $this->lessonResourceClass))
+            ->withCreateCodeStatus()
             ->setMessage('Lesson created successfully');
     }
 
     /**
      * @param Lesson $lesson
-     * @return mixed
+     * @return JsonResponse
      */
-    public function destroy(Lesson $lesson)
+    public function destroy(Lesson $lesson): JsonResponse
     {
         if ($lesson->delete()) {
             return $this->respondDeleteSuccess();
@@ -78,28 +86,42 @@ class LessonsController extends Controller
         }
     }
 
+
     /**
+     * @param LessonRequest $request
      * @param Lesson $lesson
-     * @return mixed
+     * @return ResourceApiCollection|JsonResponse
      */
-    public function update(Lesson $lesson)
+    public function update(Lesson $lesson, LessonRequest $request)
     {
-        if ($lesson->update(request()->all())) {
-            return (new LessonCollection($lesson->get()))
-                ->withUpdatedCodeStatus()
+        if ($lesson->update($request->all())) {
+            return (new ResourceApiCollection($lesson->get(), $this->lessonResourceClass))
+                ->withUpdateCodeStatus()
                 ->setMessage('Lesson updated successfully');
         } else {
-            return $this->respondInternalError();
+            return $this->respondBadRequest();
         }
     }
 
     /**
      * @param Lesson $lesson
-     * @return TagCollection
+     * @return ResourceApiCollection
      */
-    public function tags(Lesson $lesson): TagCollection
+    public function tags(Lesson $lesson): ResourceApiCollection
     {
-        return (new TagCollection($lesson->tags));
+        return (new ResourceApiCollection($lesson->tags, TagResource::class));
+    }
+
+    /**
+     * @param LessonRepository $lessonRepo
+     * @return ResourceApiCollection
+     */
+    public function tagsGroup(LessonRepository $lessonRepo): ResourceApiCollection
+    {
+        return (new ResourceApiCollection(
+            $lessonRepo->getLessonsWithGroupedTags(),
+            TagGroupResource::class)
+        );
     }
 
 }

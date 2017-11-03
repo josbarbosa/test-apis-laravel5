@@ -4,6 +4,8 @@ use App\Traits\ResponsableApi;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -12,7 +14,7 @@ class Handler extends ExceptionHandler
 {
     use ResponsableApi;
 
-    protected $httpExceptionsFiltered = [
+    protected $httpExceptionsFilter = [
         ModelNotFoundException::class    => 'respondNotFound',
         UnauthorizedHttpException::class => 'respondUnauthorized',
         FatalThrowableError::class       => 'respondInternalError',
@@ -68,13 +70,14 @@ class Handler extends ExceptionHandler
 
     /**
      * @param Exception $exception
-     * @return mixed
+     *
+     * Return a jsonResponse
      */
-    private function searchException($exception)
+    private function searchException(Exception $exception)
     {
         $exceptionClassName = get_class($exception);
-        if (array_key_exists($exceptionClassName, $this->httpExceptionsFiltered)) {
-            return $this->{$this->httpExceptionsFiltered[$exceptionClassName]}();
+        if (array_key_exists($exceptionClassName, $this->httpExceptionsFilter)) {
+            return $this->{$this->httpExceptionsFilter[$exceptionClassName]}();
         }
     }
 }

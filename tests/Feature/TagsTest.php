@@ -58,18 +58,6 @@ class TagsTest extends TestCase
         $response = $this->getJson('api/v1/tags/' . $tag->id)
             ->assertStatus(200);
 
-        $response->assertJsonFragment($this->getTagFragment($tag));
-    }
-
-    /**
-     * @param Tag $tag
-     * @return array
-     */
-    private function getTagFragment(Tag $tag): array
-    {
-        return [
-            'id'   => $tag->id,
-            'name' => $tag->name,
-        ];
+        $response->assertJsonFragment($this->tagFragment($tag));
     }
 }
