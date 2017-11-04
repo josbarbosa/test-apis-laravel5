@@ -263,6 +263,19 @@ class LessonsTest extends TestCase
         $response->assertJsonFragment($this->tagsGroupFragment($lesson));
     }
 
+    /** @test */
+    function it_fetch_tags_of_a_given_lesson(): void
+    {
+        $lesson = create(Lesson::class, 1);
+        $lesson->tags()->attach(create(Tag::class, 2));
+
+        $this->getJson("api/v1/lessons/$lesson->id/tags")
+            ->assertJsonFragment([
+                'data' => $this->extractTagsToArray($lesson)
+            ])
+            ->assertStatus(200);
+    }
+
     /**
      * @param Lesson $lesson
      * @return array

@@ -1,10 +1,8 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests\LessonRequest;
-use App\Http\Resources\LessonResource;
-use App\Http\Resources\TagGroupResource;
 use App\Http\Resources\ResourceApiCollection;
-use App\Http\Resources\TagResource;
+use App\Http\Resources\TagGroupResource;
 use App\Lesson;
 use App\Repositories\LessonRepository;
 use App\Traits\ResponsableApi;
@@ -17,11 +15,6 @@ use Illuminate\Http\JsonResponse;
 class LessonsController extends Controller
 {
     use ResponsableApi;
-
-    /**
-     * @var string
-     */
-    protected $lessonResourceClass = LessonResource::class;
 
     /**
      * LessonsController constructor.
@@ -46,9 +39,7 @@ class LessonsController extends Controller
 
         /** https://www.rfc-editor.org/rfc/rfc2616.txt */
 
-        return (new ResourceApiCollection(
-            Lesson::paginate(getItemsPerPage('lessons')), $this->lessonResourceClass
-        ));
+        return new ResourceApiCollection(Lesson::paginate(getItemsPerPage('lessons')));
     }
 
     /**
@@ -57,7 +48,7 @@ class LessonsController extends Controller
      */
     public function show(Lesson $lesson): ResourceApiCollection
     {
-        return (new ResourceApiCollection($lesson->get(), $this->lessonResourceClass));
+        return new ResourceApiCollection($lesson->get());
     }
 
     /**
@@ -68,8 +59,8 @@ class LessonsController extends Controller
     {
         $lesson = Lesson::create($request->all());
 
-        return (new ResourceApiCollection($lesson->get(), $this->lessonResourceClass))
-            ->withCreateCodeStatus()
+        return (new ResourceApiCollection($lesson->get()))
+            ->withCreateStatusCode()
             ->setMessage('Lesson created successfully');
     }
 
@@ -95,8 +86,8 @@ class LessonsController extends Controller
     public function update(Lesson $lesson, LessonRequest $request)
     {
         if ($lesson->update($request->all())) {
-            return (new ResourceApiCollection($lesson->get(), $this->lessonResourceClass))
-                ->withUpdateCodeStatus()
+            return (new ResourceApiCollection($lesson->get()))
+                ->withUpdateStatusCode()
                 ->setMessage('Lesson updated successfully');
         } else {
             return $this->respondBadRequest();
@@ -109,7 +100,7 @@ class LessonsController extends Controller
      */
     public function tags(Lesson $lesson): ResourceApiCollection
     {
-        return (new ResourceApiCollection($lesson->tags, TagResource::class));
+        return (new ResourceApiCollection($lesson->tags));
     }
 
     /**
@@ -119,8 +110,7 @@ class LessonsController extends Controller
     public function tagsGroup(LessonRepository $lessonRepo): ResourceApiCollection
     {
         return (new ResourceApiCollection(
-            $lessonRepo->getLessonsWithGroupedTags(),
-            TagGroupResource::class)
+            $lessonRepo->getLessonsWithGroupedTags(), TagGroupResource::class)
         );
     }
 

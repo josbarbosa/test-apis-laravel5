@@ -27,8 +27,6 @@ class LessonRequest extends FormRequest
         if (User::find(Auth::id())) {
             return true;
         }
-
-        return false;
     }
 
     /**
