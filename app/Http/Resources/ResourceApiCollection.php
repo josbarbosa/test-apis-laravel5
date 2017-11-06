@@ -1,5 +1,6 @@
 <?php namespace App\Http\Resources;
 
+use App\Exceptions\ResourceCollectionNotFound;
 use App\Traits\ClassResolverResources;
 use App\Traits\MessagableApi;
 use App\Traits\StatusCodeResources;
@@ -8,6 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 /**
+ * In this small example project every json response has the same structure
+ * Created class that extends the ResourceCollection class
+ * and build the json dynamically without the need to create
+ * a correspondent collection for every resource
+ *
  * Class ResourceApiCollection
  * @package App\Http\Resources
  */
@@ -48,7 +54,7 @@ class ResourceApiCollection extends ResourceCollection
     public function toArray($request)
     {
         if (!$this->collects) {
-            throw new \Exception('Api Resource not found.');
+            throw new ResourceCollectionNotFound();
         }
 
         return $this->merge(

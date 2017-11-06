@@ -226,6 +226,20 @@ class LessonsTest extends TestCase
     }
 
     /** @test */
+    function it_throws_a_400_when_the_body_has_wrong_values_and_pass_validation(): void
+    {
+        $this->signIn();
+
+        $lesson = create(Lesson::class, 1);
+
+        $this->patchJson('api/v1/lessons/' . $lesson->id, [
+            'title'  => 'New Title',
+            'body'   => 'New Body',
+            'active' => 'dasdsa',
+        ])->assertStatus(400);
+    }
+
+    /** @test */
     function it_throws_a_401_when_trying_to_update_a_lesson_and_is_not_authenticated(): void
     {
         $lesson = create(Lesson::class, 1);
@@ -271,7 +285,7 @@ class LessonsTest extends TestCase
 
         $this->getJson("api/v1/lessons/$lesson->id/tags")
             ->assertJsonFragment([
-                'data' => $this->extractTagsToArray($lesson)
+                'data' => $this->extractTagsToArray($lesson),
             ])
             ->assertStatus(200);
     }

@@ -30,15 +30,6 @@ class LessonsController extends Controller
      */
     public function index(): ResourceApiCollection
     {
-        /** 1. All is bad */
-        /** 2. No way to attach meta data */
-        /** 3. Linking db structure to the API output */
-        /** 4. No way to signal headers/response codes */
-
-        /** return Lesson::all();  really bad practice */
-
-        /** https://www.rfc-editor.org/rfc/rfc2616.txt */
-
         return new ResourceApiCollection(Lesson::paginate(getItemsPerPage('lessons')));
     }
 
@@ -70,11 +61,9 @@ class LessonsController extends Controller
      */
     public function destroy(Lesson $lesson): JsonResponse
     {
-        if ($lesson->delete()) {
-            return $this->respondDeleteSuccess();
-        } else {
-            return $this->respondInternalError();
-        }
+        $lesson->delete();
+
+        return $this->respondDeleteSuccess();
     }
 
 
@@ -85,13 +74,15 @@ class LessonsController extends Controller
      */
     public function update(Lesson $lesson, LessonRequest $request)
     {
-        if ($lesson->update($request->all())) {
-            return (new ResourceApiCollection($lesson->get()))
-                ->withUpdateStatusCode()
-                ->setMessage('Lesson updated successfully');
-        } else {
+        try {
+            $lesson->update($request->all());
+        } catch (\Exception $e) {
             return $this->respondBadRequest();
         }
+
+        return (new ResourceApiCollection($lesson->get()))
+            ->withUpdateStatusCode()
+            ->setMessage('Lesson updated successfully');
     }
 
     /**
@@ -104,13 +95,13 @@ class LessonsController extends Controller
     }
 
     /**
-     * @param LessonRepository $lessonRepo
+     * @param LessonRepository $lesson
      * @return ResourceApiCollection
      */
-    public function tagsGroup(LessonRepository $lessonRepo): ResourceApiCollection
+    public function tagsGroup(LessonRepository $lesson): ResourceApiCollection
     {
         return (new ResourceApiCollection(
-            $lessonRepo->getLessonsWithGroupedTags(), TagGroupResource::class)
+            $lesson->getLessonsWithGroupedTags(), TagGroupResource::class)
         );
     }
 

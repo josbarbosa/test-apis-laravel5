@@ -1,5 +1,7 @@
 <?php
 
+use App\Lesson;
+use App\Tag;
 use Illuminate\Database\Seeder;
 
 class LessonsTagsTableSeeder extends Seeder
@@ -11,23 +13,11 @@ class LessonsTagsTableSeeder extends Seeder
      */
     public function run()
     {
-        $lessonIds = \DB::table('lessons')->pluck('id')->toArray();
-        $tagIds = \DB::table('tags')->pluck('id')->toArray();
+        $lessons = Lesson::all();
+        $tags = Tag::all();
 
-        $pivots = [];
-        foreach ($lessonIds as $lessonId) {
-            /** necessary since shuffle() and array_shift() take an array by reference */
-            $randomizedTagIds = $tagIds;
-
-            shuffle($randomizedTagIds);
-            for ($index = 0; $index < 3; $index++) {
-                $pivots[] = [
-                    'lesson_id' => $lessonId,
-                    'tag_id'    => array_shift($randomizedTagIds),
-                ];
-            }
-        }
-
-        \DB::table('lesson_tag')->insert($pivots);
+        $lessons->each(function ($lesson) use ($tags) {
+            $lesson->tags()->attach($tags->random(rand(1, 5)));
+        });
     }
 }

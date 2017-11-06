@@ -1,10 +1,13 @@
 <?php namespace Tests\Feature;
 
 use App\Tag;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class TagsTest extends TestCase
 {
+    use DatabaseTransactions;
+
     /** @test */
     function a_user_needs_to_receive_a_valid_tag_json_structure_response(): void
     {

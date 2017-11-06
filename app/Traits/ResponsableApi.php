@@ -12,7 +12,6 @@ trait ResponsableApi
 {
     use MessagableApi;
 
-
     /**
      * @param array $data
      * @param array $headers
@@ -68,7 +67,6 @@ trait ResponsableApi
             ->respondWithErrorMessage();
     }
 
-
     /**
      * @return JsonResponse
      */
@@ -107,6 +105,13 @@ trait ResponsableApi
     {
         return $this->setMessage('Resource malformed')
             ->setStatusCode(StatusCode::HTTP_BAD_REQUEST)
+            ->respondWithErrorMessage();
+    }
+
+    public function respondResourceNotFound(): JsonResponse
+    {
+        return $this->setMessage('Api resource not found.')
+            ->setStatusCode(StatusCode::HTTP_FAILED_DEPENDENCY)
             ->respondWithErrorMessage();
     }
 }

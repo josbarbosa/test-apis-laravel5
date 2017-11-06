@@ -18,6 +18,7 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class    => 'respondNotFound',
         UnauthorizedHttpException::class => 'respondUnauthorized',
         FatalThrowableError::class       => 'respondInternalError',
+        ResourceCollectionNotFound::class => 'respondResourceNotFound'
     ];
 
     /**
