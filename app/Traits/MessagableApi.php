@@ -43,7 +43,6 @@ trait MessagableApi
     public function getMessage(): string
     {
         return $this->message;
-
     }
 
     /**
