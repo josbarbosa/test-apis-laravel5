@@ -46,5 +46,4 @@ class LessonRequest extends FormRequest
     {
         throw new HttpResponseException($this->respondFailedValidation($validator->errors()));
     }
-
 }

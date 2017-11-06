@@ -1,11 +1,12 @@
 <?php namespace App\Traits;
 
 use Illuminate\Http\Response as StatusCode;
+
 /**
  * Trait MessagableApi
  * @package App\Traits
  */
-Trait MessagableApi
+trait MessagableApi
 {
     /**
      * @var int

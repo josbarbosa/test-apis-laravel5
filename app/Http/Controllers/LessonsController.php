@@ -100,9 +100,6 @@ class LessonsController extends Controller
      */
     public function tagsGroup(LessonRepository $lesson): ResourceApiCollection
     {
-        return (new ResourceApiCollection(
-            $lesson->getLessonsWithGroupedTags(), TagGroupResource::class)
-        );
+        return (new ResourceApiCollection($lesson->getLessonsWithGroupedTags(), TagGroupResource::class));
     }
-
 }
